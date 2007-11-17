@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 
 namespace Gouda.Api
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct DISPLAY_CALLBACK
+    public class Win32
     {
-        // put struct code here.
+        [DllImport("kernel32.dll")]
+        public static extern bool SetDllDirectory(string path);
     }
 }

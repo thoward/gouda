@@ -156,11 +156,11 @@ gsapi_new_instance(void **pinstance, void *caller_handle);
  *  counter to make sure that only a single instance is used.
  * WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
  */
-/* Destroy an instance of Ghostscript
- * Before you call this, Ghostscript must have finished.
- * If Ghostscript has been initialised, you must call gsapi_exit()
- * before gsapi_delete_instance.
- */
+//Destroy an instance of Ghostscript
+//Before you call this, Ghostscript must have finished.
+//If Ghostscript has been initialised, you must call gsapi_exit()
+//before gsapi_delete_instance.
+
 GSDLLEXPORT void GSDLLAPI 
 gsapi_delete_instance(void *instance);
 
