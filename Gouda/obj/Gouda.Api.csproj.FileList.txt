@@ -1,5 +1,0 @@
-bin\Debug\Gouda.Api.dll
-bin\Debug\Gouda.Api.pdb
-obj\Debug\ResolveAssemblyReference.cache
-obj\Debug\Gouda.Api.dll
-obj\Debug\Gouda.Api.pdb
