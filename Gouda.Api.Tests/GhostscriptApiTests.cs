@@ -6,12 +6,23 @@ using NUnit.Framework;
 using Gouda.Api;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.IO;
+using Gouda.Api.DisplayDevice;
 
 namespace Gouda.Api.Tests
 {
     [TestFixture]
     public class GhostscriptApiTests
     {
+        private string _testFilesDir;
+
+        [TestFixtureSetUp]
+        public void Init()
+        {                              
+            _testFilesDir = @"C:\dev\svn\GoudaProject\Gouda.Api.Tests\TestDocs";
+        }
+
+
         [Test]
         public void Test_GetRevision()
         {
@@ -31,59 +42,57 @@ namespace Gouda.Api.Tests
             TestOutput.PrintRevision(revision);
         }
 
-        
-    }
-
-    public class TestOutput
-    {
-        public static void PrintRevision(GS_REVISION revision)
+        [Test]
+        public void TestDoSomeThings()
         {
-            printObject(revision);
-        }
+            string testPsFile = Path.Combine(_testFilesDir, "test.ps");
 
-        private static void printObject(object obj)
-        {
-            Type objType = obj.GetType();
-            MemberInfo[] mia = objType.GetMembers();
-
-            foreach (MemberInfo mi in mia)
+            IntPtr instance = new IntPtr();
+            lock (Ghostscript.syncroot)
             {
-                string output = string.Empty;
-
-                switch (mi.MemberType)
+                try
                 {
-                    case MemberTypes.All:
-                        break;
-                    case MemberTypes.Constructor:
-                        break;
-                    case MemberTypes.Custom:
-                        break;
-                    case MemberTypes.Event:
-                        break;
-                    case MemberTypes.Field:
-                        FieldInfo fi = objType.GetField(mi.Name);
-                        output = fi.Name.PadRight(16, ' ') + ": " + fi.GetValue(obj).ToString();                    
-                        break;
-                    case MemberTypes.Method:
-                        break;
-                    case MemberTypes.NestedType:
-                        break;
-                    case MemberTypes.Property:
-                        PropertyInfo pi = objType.GetProperty(mi.Name);
-                        output = pi.Name.PadRight(16, ' ') + ": " + pi.GetValue(obj, null).ToString();                    
-                        break;
-                    case MemberTypes.TypeInfo:
-                        break;
-                    default:
-                        break;
+                    int result = Ghostscript.NewInstance(out instance, IntPtr.Zero);
+
+                    Assert.AreEqual(0, result);
+
+                    if (result == 0)
+                    {
+                        ConsoleStdioHandler consoleHandler = new ConsoleStdioHandler();
+
+                        Ghostscript.SetStdio(instance, consoleHandler.StdInCallBack, consoleHandler.StdOutCallBack, consoleHandler.StdErrCallBack);
+                        
+                        string[] args = new string[] {
+                            "-sDEVICE=display"                            
+                        };
+
+                        int init = Ghostscript.InitWithArgs(instance, args.Length, args);
+
+                        Console.WriteLine("Init returns: " + init);
+
+                        int exitCode = 0;
+
+                        Ghostscript.RunFile(instance, testPsFile, 0, out exitCode);
+
+                        Console.WriteLine("RunFile exits: " + exitCode);
+
+                        Ghostscript.Exit(instance);                        
+                    }
                 }
-
-                if (!string.IsNullOrEmpty(output))
+                catch (Exception ex)
                 {
-                    Console.WriteLine(output);
+                    Console.WriteLine(ex);
+                    throw ex;
+                }
+                finally
+                {
+                    
+                    Ghostscript.DeleteInstance(instance);
                 }
             }
-        }
-
+            
+        }        
     }
+
+
 }

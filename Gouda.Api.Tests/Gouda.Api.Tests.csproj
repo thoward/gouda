@@ -36,6 +36,8 @@
   <ItemGroup>
     <Compile Include="GhostscriptApiTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestDisplayDevice.cs" />
+    <Compile Include="TestOutput.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gouda\Gouda.Api.csproj">
