@@ -14,7 +14,7 @@ namespace Gouda.Api.DisplayDevice
     /// <summary>
     /// 
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack=1, CharSet=CharSet.Ansi)]
     public struct DISPLAY_CALLBACK
     {
         #region Struct Informational Members
@@ -43,40 +43,48 @@ namespace Gouda.Api.DisplayDevice
         /// <summary>
         /// New device has been opened This is the first event from this device. 
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplayOpenCallback DisplayOpen;
+        
 
         /// <summary>
         /// Device is about to be closed.
         /// Device will not be closed until this function returns. 
         /// </summary>
-        public DisplayPreCloseCallback DisplayPreClose;
+        [MarshalAs(UnmanagedType.FunctionPtr)] 
+        public DisplayPreCloseCallback DisplayPreClose;        
 
         /// <summary>
         /// Device has been closed.
         /// This is the last event from this device.
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplayCloseCallback DisplayClose;
 
         /// <summary>
         /// Device is about to be resized.
         /// Resize will only occur if this function returns 0.
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplayPreSizeCallback DisplayPreSize;
 
         /// <summary>
         /// This callback is fired when the device has been resized. 
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplaySizeCallback DisplaySize;
 
         /// <summary>
         /// This callback is fired on the postscript flushpage command.
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplaySyncCallback DisplaySync;
 
         /// <summary>
         /// This callback is fired on the postscript showpage command.
         /// <para>If you want to pause on showpage, then don't return immediately</para>
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplayPageCallback DisplayPage;
 
         /// <summary>
@@ -86,6 +94,7 @@ namespace Gouda.Api.DisplayDevice
         /// This function pointer may be set to NULL if not required.
         /// </para>
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplayUpdateCallback DisplayUpdate;
 
         /// <summary>
@@ -98,12 +107,14 @@ namespace Gouda.Api.DisplayDevice
         /// returned by display_memalloc.
         /// </para>
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplayMemAllocCallback DisplayMemAlloc;
 
         /// <summary>
         /// Free memory for bitmap. 
         /// If this is NULL, the Ghostscript memory device will free the bitmap 
         /// </summary>
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public DisplayMemFreeCallback DisplayMemFree;
 
 
@@ -123,11 +134,10 @@ namespace Gouda.Api.DisplayDevice
         /// </para>
         /// This function pointer may be set to NULL if not required.
         /// </summary>
-        public DisplaySeperationCallback DisplaySeperation;        
+        [MarshalAs(UnmanagedType.FunctionPtr)]
+        public DisplaySeperationCallback DisplaySeperation;               
         #endregion 
     }
-
-
 }
 
 

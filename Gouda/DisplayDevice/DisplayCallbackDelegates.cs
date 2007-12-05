@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace Gouda.Api.DisplayDevice
 {
@@ -12,7 +13,8 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="handle"></param>
     /// <param name="device"></param>
     /// <returns></returns>
-    public delegate int DisplayOpenCallback(IntPtr handle, IntPtr device);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate int DisplayOpenCallback(IntPtr handle, int device);
 
     /// <summary>
     /// Device is about to be closed.
@@ -21,6 +23,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="handle"></param>
     /// <param name="device"></param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DisplayPreCloseCallback(IntPtr handle, IntPtr device);
 
     /// <summary>
@@ -30,6 +33,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="handle"></param>
     /// <param name="device"></param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DisplayCloseCallback(IntPtr handle, IntPtr device);
 
     /// <summary>
@@ -45,6 +49,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="raster">The byte count of a single row.</param>
     /// <param name="format">Color format. ?</param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DisplayPreSizeCallback(IntPtr handle, IntPtr device, Int32 width, Int32 height, Int32 raster, UInt32 format);
 
     /// <summary>
@@ -58,6 +63,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="format">Color format. ?</param>
     /// <param name="pimage">New pointer to raster returned in pimage.</param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DisplaySizeCallback(IntPtr handle, IntPtr device, Int32 width, Int32 height, Int32 raster, UInt32 format, IntPtr pimage);
 
     /// <summary>
@@ -66,6 +72,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="handle"></param>
     /// <param name="device"></param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DisplaySyncCallback(IntPtr handle, IntPtr device);
 
     /// <summary>
@@ -77,6 +84,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="copies">?</param>
     /// <param name="flush">?</param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DisplayPageCallback(IntPtr handle, IntPtr device, Int32 copies, Int32 flush);
 
 
@@ -95,6 +103,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="w">The width in pixels of the update rectangle.</param>
     /// <param name="h">The height in pixels of the update rectangle.</param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DisplayUpdateCallback(IntPtr handle, IntPtr device, Int32 x, Int32 y, Int32 w, Int32 h);
 
     /// <summary>
@@ -111,6 +120,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="device"></param>
     /// <param name="size"></param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate IntPtr DisplayMemAllocCallback(IntPtr handle, IntPtr device, Int32 size);
 
     /// <summary>
@@ -121,6 +131,7 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="device"></param>
     /// <param name="mem">Pointer to memory location to free.</param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DisplayMemFreeCallback(IntPtr handle, IntPtr device, IntPtr mem);
 
 
@@ -149,5 +160,6 @@ namespace Gouda.Api.DisplayDevice
     /// <param name="y">Yellow value. 65535 = 1.0</param>
     /// <param name="k">Key (Black) value. 65535 = 1.0</param>
     /// <returns></returns>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet=CharSet.Ansi)]
     public delegate int DisplaySeperationCallback(IntPtr handle, IntPtr device, Int32 component, String componentName, UInt16 c, UInt16 m, UInt16 y, UInt16 k);    
 }

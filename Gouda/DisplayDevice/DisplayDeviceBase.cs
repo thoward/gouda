@@ -12,6 +12,7 @@ namespace Gouda.Api.DisplayDevice
     {
         public DisplayDeviceBase()
         {
+            setupDelegates();
             buildCallBackStruct();
         }
 
@@ -35,9 +36,9 @@ namespace Gouda.Api.DisplayDevice
         /// Major version of this structure. 
         /// The major version number will change if this structure changes.
         /// </summary>
-        public abstract int MajorVersion
+        public int MajorVersion
         {
-            get;
+            get { return 2; }
         }
 
         /// <summary>
@@ -46,16 +47,45 @@ namespace Gouda.Api.DisplayDevice
         /// without changes to this structure.  For example, a new color
         /// format.
         /// </summary>
-        public abstract int MinorVersion
+        public int MinorVersion
         {
-            get;
+            get { return 0; }
         }
+
+        private DisplayOpenCallback _displayOpen;
+        private DisplayPreCloseCallback _displayPreClose;
+        private DisplayCloseCallback _displayClose;
+        private DisplayPreSizeCallback _displayPreSize;
+        private DisplaySizeCallback _displaySize;
+        private DisplaySyncCallback _displaySync;
+        private DisplayPageCallback _displayPage;
+        private DisplayUpdateCallback _displayUpdate;
+        private DisplayMemAllocCallback _displayMemAlloc;
+        private DisplayMemFreeCallback _displayMemFree;
+        private DisplaySeperationCallback _displaySeperation;
+
+        private void setupDelegates()
+        {
+            _displayOpen = new DisplayOpenCallback(DisplayOpen);
+            _displayPreClose = new DisplayPreCloseCallback(DisplayPreClose);
+            _displayClose = new DisplayCloseCallback(DisplayClose);
+            _displayPreSize = new DisplayPreSizeCallback(DisplayPreSize);
+            _displaySize = new DisplaySizeCallback(DisplaySize);
+            _displaySync = new DisplaySyncCallback(DisplaySync);
+            _displayPage = new DisplayPageCallback(DisplayPage);
+            _displayUpdate = new DisplayUpdateCallback(DisplayUpdate);
+            _displayMemAlloc = new DisplayMemAllocCallback(DisplayMemAlloc);
+            _displayMemFree = new DisplayMemFreeCallback(DisplayMemFree);
+            _displaySeperation = new DisplaySeperationCallback(DisplaySeperation);
+        }
+
 
         /// <summary>
         /// Build a DISPLAY_CALLBACK struct for this class to pass to the SetDisplayDevice API call. 
         /// </summary>
         /// <returns></returns>
-        protected DISPLAY_CALLBACK buildCallBackStruct()
+        //public DISPLAY_CALLBACK buildCallBackStruct()
+        public void buildCallBackStruct()
         {
             _callbackStruct = new DISPLAY_CALLBACK();
 
@@ -65,6 +95,7 @@ namespace Gouda.Api.DisplayDevice
             
             // setup delegates 
             _callbackStruct.DisplayOpen = new DisplayOpenCallback(DisplayOpen);
+
             _callbackStruct.DisplayPreClose = new DisplayPreCloseCallback(DisplayPreClose);
             _callbackStruct.DisplayClose = new DisplayCloseCallback(DisplayClose);
 
@@ -77,11 +108,9 @@ namespace Gouda.Api.DisplayDevice
             _callbackStruct.DisplayMemFree = new DisplayMemFreeCallback(DisplayMemFree);
             _callbackStruct.DisplaySeperation = new DisplaySeperationCallback(DisplaySeperation);
 
-            // calculate size
+             // calculate size
             _callbackStruct.Size = 0;
-            _callbackStruct.Size = Marshal.SizeOf(_callbackStruct);
-
-            return _callbackStruct;
+            _callbackStruct.Size = Marshal.SizeOf(_callbackStruct); 
         }
 
         /// <summary>
@@ -90,7 +119,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="handle"></param>
         /// <param name="device"></param>
         /// <returns></returns>
-        protected abstract int DisplayOpen(IntPtr handle, IntPtr device);
+        public abstract int DisplayOpen(IntPtr handle, int device);
 
         /// <summary>
         /// Device is about to be closed.
@@ -99,7 +128,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="handle"></param>
         /// <param name="device"></param>
         /// <returns></returns>
-        protected abstract int DisplayPreClose(IntPtr handle, IntPtr device);
+        public abstract int DisplayPreClose(IntPtr handle, IntPtr device);
 
         /// <summary>
         /// Device has been closed.
@@ -108,7 +137,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="handle"></param>
         /// <param name="device"></param>
         /// <returns></returns>
-        protected abstract int DisplayClose(IntPtr handle, IntPtr device);
+        public abstract int DisplayClose(IntPtr handle, IntPtr device);
 
         /// <summary>
         /// Device is about to be resized.
@@ -123,7 +152,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="raster">The byte count of a single row.</param>
         /// <param name="format">Color format. ?</param>
         /// <returns></returns>
-        protected abstract int DisplayPreSize(IntPtr handle, IntPtr device, Int32 width, Int32 height, Int32 raster, UInt32 format);
+        public abstract int DisplayPreSize(IntPtr handle, IntPtr device, Int32 width, Int32 height, Int32 raster, UInt32 format);
 
         /// <summary>
         /// This callback is fired when the device has been resized. 
@@ -136,7 +165,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="format">Color format. ?</param>
         /// <param name="pimage">New pointer to raster returned in pimage.</param>
         /// <returns></returns>
-        protected abstract int DisplaySize(IntPtr handle, IntPtr device, Int32 width, Int32 height, Int32 raster, UInt32 format, IntPtr pimage);
+        public abstract int DisplaySize(IntPtr handle, IntPtr device, Int32 width, Int32 height, Int32 raster, UInt32 format, IntPtr pimage);
 
         /// <summary>
         /// This callback is fired on the postscript flushpage command.
@@ -144,7 +173,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="handle"></param>
         /// <param name="device"></param>
         /// <returns></returns>
-        protected abstract int DisplaySync(IntPtr handle, IntPtr device);
+        public abstract int DisplaySync(IntPtr handle, IntPtr device);
 
         /// <summary>
         /// This callback is fired on the postscript showpage command.
@@ -155,7 +184,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="copies">?</param>
         /// <param name="flush">?</param>
         /// <returns></returns>
-        protected abstract int DisplayPage(IntPtr handle, IntPtr device, Int32 copies, Int32 flush);
+        public abstract int DisplayPage(IntPtr handle, IntPtr device, Int32 copies, Int32 flush);
 
 
         /// <summary>
@@ -172,7 +201,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="w">The width in pixels of the update rectangle.</param>
         /// <param name="h">The height in pixels of the update rectangle.</param>
         /// <returns></returns>
-        protected abstract int DisplayUpdate(IntPtr handle, IntPtr device, Int32 x, Int32 y, Int32 w, Int32 h);
+        public abstract int DisplayUpdate(IntPtr handle, IntPtr device, Int32 x, Int32 y, Int32 w, Int32 h);
 
         /// <summary>
         /// Allocate memory for bitmap
@@ -188,7 +217,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="device"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        protected abstract IntPtr DisplayMemAlloc(IntPtr handle, IntPtr device, Int32 size);
+        public abstract IntPtr DisplayMemAlloc(IntPtr handle, IntPtr device, Int32 size);
 
         /// <summary>
         /// Free memory for bitmap. 
@@ -198,7 +227,7 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="device"></param>
         /// <param name="mem">Pointer to memory location to free.</param>
         /// <returns></returns>
-        protected abstract int DisplayMemFree(IntPtr handle, IntPtr device, IntPtr mem);
+        public abstract int DisplayMemFree(IntPtr handle, IntPtr device, IntPtr mem);
 
 
         /// <summary>
@@ -226,6 +255,6 @@ namespace Gouda.Api.DisplayDevice
         /// <param name="y">Yellow value. 65535 = 1.0</param>
         /// <param name="k">Key (Black) value. 65535 = 1.0</param>
         /// <returns></returns>
-        protected abstract int DisplaySeperation(IntPtr handle, IntPtr device, Int32 component, String componentName, UInt16 c, UInt16 m, UInt16 y, UInt16 k);
+        public abstract int DisplaySeperation(IntPtr handle, IntPtr device, Int32 component, String componentName, UInt16 c, UInt16 m, UInt16 y, UInt16 k);
     }
 }
