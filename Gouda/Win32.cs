@@ -5,7 +5,10 @@ using System.Runtime.InteropServices;
 
 namespace Gouda.Api
 {
-    public class Win32
+    /// <summary>
+    /// A class that holds win32 extern calls.
+    /// </summary>
+    public static class Win32
     {
         [DllImport("kernel32.dll")]
         public static extern bool SetDllDirectory(string path);

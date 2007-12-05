@@ -18,5 +18,5 @@ namespace Gouda.Api
     /// <param name="handle">The caller's handle</param>
     /// <returns>The polling function should return 0 if all is well, and negative if it 
     /// wants ghostscript to abort.</returns>
-    public delegate IntPtr PollCallBack(IntPtr handle);
+    public delegate int PollCallBack(IntPtr handle);
 }

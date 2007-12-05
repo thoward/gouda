@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.IO;
 
+using Gouda.Api.DisplayDevice;
+
 namespace Gouda.Api
 {
     /* Implemented gs32dll.dll export functions are:
@@ -138,6 +140,8 @@ namespace Gouda.Api
         }
         #endregion 
 
+        public static object syncroot = new object();
+
         #region Exported Ghostscript API Functions
 
         /// <summary>
@@ -153,7 +157,7 @@ namespace Gouda.Api
         /// have been added to the structure) it will return the required size of the structure. 
         /// </returns>
         [DllImport("gsdll32.dll", EntryPoint="gsapi_revision", CharSet=CharSet.Ansi)]
-        public static extern IntPtr Revision(out GS_REVISION revisionInfo, Int32 length);
+        public static extern GhostScriptApiErrorCode Revision(out GS_REVISION revisionInfo, Int32 length);
 
         /// <summary>
         /// Create a new instance of Ghostscript. 
@@ -176,7 +180,7 @@ namespace Gouda.Api
         /// <param name="callerHandle">Unused... Just pass null.</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_new_instance", CharSet = CharSet.Ansi)]
-        public static extern IntPtr NewInstance([Out] IntPtr instance, IntPtr callerHandle);
+        public static extern int NewInstance(out IntPtr instance, IntPtr callerHandle);
 
         /// <summary>
         /// <para>
@@ -198,7 +202,7 @@ namespace Gouda.Api
         /// </summary>
         /// <param name="instance">The Ghostscript instance handle.</param>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_delete_instance", CharSet = CharSet.Ansi)]
-        public static extern void DeleteInstance(out IntPtr instance);
+        public static extern void DeleteInstance(IntPtr instance);
 
 
         /// <summary>
@@ -215,7 +219,7 @@ namespace Gouda.Api
         /// <param name="stderr">A StdIoCallBack delegate to a function that writes to standard error.</param>
         /// <returns>Nothing of interest.</returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_set_stdio", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SetStdio(ref IntPtr instance, StdIoCallBack stdin, StdIoCallBack stdout, StdIoCallBack stderr);
+        public static extern GhostScriptApiErrorCode SetStdio(IntPtr instance, StdIoCallBack stdin, StdIoCallBack stdout, StdIoCallBack stderr);
 
         /// <summary>
         /// Set the callback function for polling.
@@ -232,7 +236,7 @@ namespace Gouda.Api
         /// <param name="pollFunction">A PollCallBack delegate to a function that checks to see if the Ghostscript process needs to be interrupted. This can also be used for things like a calling DoEvents, or other such things. This must be a fast function. The polling function should return 0 if all is well, and negative if it wants ghostscript to abort.</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_set_poll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SetPoll(ref IntPtr instance, PollCallBack pollFunction);
+        public static extern GhostScriptApiErrorCode SetPoll(IntPtr instance, PollCallBack pollFunction);
 
         /// <summary>
         /// Set the display device callback structure. (A structure containing a number of delegates to various display callback functions).
@@ -245,7 +249,7 @@ namespace Gouda.Api
         /// <param name="callback">A DISPLAY_CALLBACK structure containing a number of delegates to various display callback functions</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_set_display_callback", CharSet = CharSet.Ansi)]
-        public static extern IntPtr SetDisplayCallback(ref IntPtr instance, DisplayDevice.DISPLAY_CALLBACK displayCallbacks);
+        public static extern int SetDisplayCallback(IntPtr instance, ref DISPLAY_CALLBACK displayCallbacks);        
 
         /// <summary>
         /// Initialise the interpreter.
@@ -267,7 +271,7 @@ namespace Gouda.Api
         /// <param name="arguments">The array of arguments.</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_init_with_args", CharSet = CharSet.Ansi)]
-        public static extern IntPtr InitWithArgs(ref IntPtr instance, Int32 argumentCount, string[] arguments);
+        public static extern int InitWithArgs(IntPtr instance, Int32 argumentCount, [In, Out] String[] arguments);
 
         /* 
          * The gsapi_run_* functions are like gs_main_run_* except
@@ -308,7 +312,7 @@ namespace Gouda.Api
         /// <param name="exitCode">The exit code from the interpretter. See GhostscriptExitCode enum for details.</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_run_string_begin", CharSet = CharSet.Ansi)]
-        public static extern IntPtr RunStringBegin(ref IntPtr instance, Int32 errors, out Int32 exitCode);
+        public static extern GhostScriptApiErrorCode RunStringBegin(IntPtr instance, Int32 errors, out Int32 exitCode);
 
         /// <summary>
         /// Continue running a string with the option of suspending.
@@ -322,7 +326,7 @@ namespace Gouda.Api
         /// <param name="exitCode">The exit code from the interpretter. See GhostscriptExitCode enum for details.</param>
         /// <returns>Returns GhostscriptErrors.NeedInput (-106) on success. Otherwise, if the return code is less than -100, it's considered a fatal error.</returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_run_string_continue", CharSet = CharSet.Ansi)]
-        public static extern IntPtr RunStringContinue(ref IntPtr instance, String postscriptText, Int32 length, Int32 errors, out Int32 exitCode);
+        public static extern GhostScriptApiErrorCode RunStringContinue(IntPtr instance, String postscriptText, Int32 length, Int32 errors, out Int32 exitCode);
 
         /// <summary>
         /// The final stage of three stage continuous string processing. This function can be called at anytime after RunStringBegin has been called, to indicate that you are finished feeding the interpreter strings of postscript code to execute. 
@@ -334,7 +338,7 @@ namespace Gouda.Api
         /// <param name="exitCode">The exit code from the interpretter. See GhostscriptExitCode enum for details.</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_run_string_end", CharSet = CharSet.Ansi)]
-        public static extern IntPtr RunStringEnd(ref IntPtr instance, Int32 errors, out Int32 exitCode);
+        public static extern GhostScriptApiErrorCode RunStringEnd(IntPtr instance, Int32 errors, out Int32 exitCode);
 
         /// <summary>
         /// Runs a string. This is basically an overload that calls RunStringBegin, RunStringContinue, and RunStringEnd for you. Use this is you only have a single line of code to execute, to save yourself the trouble of calling three functions...
@@ -345,7 +349,7 @@ namespace Gouda.Api
         /// <param name="exitCode">The exit code from the interpretter. See GhostscriptExitCode enum for details.</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_run_string", CharSet = CharSet.Ansi)]
-        public static extern IntPtr RunString(ref IntPtr instance, String postscriptText, Int32 errors, out Int32 exitCode);
+        public static extern IntPtr RunString(IntPtr instance, String postscriptText, Int32 errors, out Int32 exitCode);
 
         /// <summary>
         /// 
@@ -357,7 +361,7 @@ namespace Gouda.Api
         /// <param name="exitCode">The exit code from the interpretter. See GhostscriptExitCode enum for details.</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_run_string_with_length", CharSet = CharSet.Ansi)]
-        public static extern IntPtr RunStringWithLength(ref IntPtr instance, String postscriptText, Int32 length, Int32 errors, out Int32 exitCode);
+        public static extern GhostScriptApiErrorCode RunStringWithLength(IntPtr instance, String postscriptText, Int32 length, Int32 errors, out Int32 exitCode);
 
         /// <summary>
         /// 
@@ -368,7 +372,7 @@ namespace Gouda.Api
         /// <param name="exitCode">The exit code from the interpretter. See GhostscriptExitCode enum for details.</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_run_file", CharSet = CharSet.Ansi)]
-        public static extern IntPtr RunFile(ref IntPtr instance, String filename, Int32 errors, out Int32 exitCode);
+        public static extern GhostScriptApiErrorCode RunFile(IntPtr instance, String filename, Int32 errors, out Int32 exitCode);
 
 
         /// <summary>
@@ -378,13 +382,14 @@ namespace Gouda.Api
         /// </summary>
         /// <param name="instance">The Ghostscript instance handle.</param>
         /// <returns></returns>
-        [DllImport("gsdll32.dll", EntryPoint = "gsapi_exit", CharSet = CharSet.Ansi)]        
-        public static extern IntPtr Exit(ref IntPtr instance);   
+        [DllImport("gsdll32.dll", EntryPoint = "gsapi_exit", CharSet = CharSet.Ansi)]
+        public static extern GhostScriptApiErrorCode Exit(IntPtr instance);   
 
         // according to the documentation this should not be included in release builds, 
         // only in debug, so we're not going to include it here. 
 
-        //[DllImport("gsdll32.dll", EntryPoint = "gsapi_set_visual_tracer")]       
+        //[DllImport("gsdll32.dll", EntryPoint = "gsapi_set_visual_tracer")]
+        //public static extern GhostScriptApiErrorCode SetVisualTracer(IntPtr instance);   
 
         #endregion
 
