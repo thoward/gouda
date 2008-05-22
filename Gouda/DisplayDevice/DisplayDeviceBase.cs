@@ -103,10 +103,10 @@ namespace Gouda.Api.DisplayDevice
             _callbackStruct.DisplaySize = new DisplaySizeCallback(DisplaySize);
             _callbackStruct.DisplaySync = new DisplaySyncCallback(DisplaySync);
             _callbackStruct.DisplayPage = new DisplayPageCallback(DisplayPage);
-            _callbackStruct.DisplayUpdate = new DisplayUpdateCallback(DisplayUpdate);
-            _callbackStruct.DisplayMemAlloc = new DisplayMemAllocCallback(DisplayMemAlloc);
-            _callbackStruct.DisplayMemFree = new DisplayMemFreeCallback(DisplayMemFree);
-            _callbackStruct.DisplaySeperation = new DisplaySeperationCallback(DisplaySeperation);
+            _callbackStruct.DisplayUpdate = null;// new DisplayUpdateCallback(DisplayUpdate);
+            _callbackStruct.DisplayMemAlloc = null; // new DisplayMemAllocCallback(DisplayMemAlloc);
+            _callbackStruct.DisplayMemFree = null; // new DisplayMemFreeCallback(DisplayMemFree);
+            _callbackStruct.DisplaySeperation = null;// new DisplaySeperationCallback(DisplaySeperation);
 
              // calculate size
             _callbackStruct.Size = 0;

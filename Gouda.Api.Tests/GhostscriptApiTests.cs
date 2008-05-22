@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 using System.IO;
 using Gouda.Api.DisplayDevice;
+using System.Diagnostics;
 
 namespace Gouda.Api.Tests
 {
@@ -26,9 +27,12 @@ namespace Gouda.Api.Tests
         [Test]
         public void Test_GetRevision()
         {
-            GS_REVISION revision;                  
-            Ghostscript.Revision(out revision, Marshal.SizeOf(typeof(GS_REVISION)));
-
+            GS_REVISION revision;
+            
+            lock (Ghostscript.syncroot)
+            {
+                Ghostscript.Revision(out revision, Marshal.SizeOf(typeof(GS_REVISION)));
+            }
             Assert.IsNotNull(revision);
 
             // on my machine I have GPL Ghostscript 8.60 installed. 
@@ -65,6 +69,12 @@ namespace Gouda.Api.Tests
                         string[] args = new string[] {
                             "-sDEVICE=display"                            
                         };
+                        TestDisplay disp = new TestDisplay();
+
+                        IntPtr dispptr = Marshal.AllocCoTaskMem(disp.CallbackStruct.Size);
+                        Marshal.StructureToPtr(disp.CallbackStruct, dispptr, true);
+
+                        Ghostscript.SetDisplayCallback(instance, disp.CallbackStruct);
 
                         int init = Ghostscript.InitWithArgs(instance, args.Length, args);
 

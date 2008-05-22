@@ -10,7 +10,7 @@ namespace Gouda.Api
     /// </summary>
     public static class Win32
     {
-        [DllImport("kernel32.dll")]
-        public static extern bool SetDllDirectory(string path);
+        [DllImport("kernel32.dll", SetLastError=true, CharSet=CharSet.Ansi)]
+        public static extern bool SetDllDirectory([MarshalAs(UnmanagedType.LPTStr)] string path);
     }
 }

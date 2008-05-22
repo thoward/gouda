@@ -6,6 +6,8 @@ using Microsoft.Win32;
 using System.IO;
 
 using Gouda.Api.DisplayDevice;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace Gouda.Api
 {
@@ -79,14 +81,29 @@ namespace Gouda.Api
             gsDllPath = findGhostscriptDLLPathInRegistry();
             
             // debug, hardcoding path
-            //gsdllPath = @"C:\Program Files\gs\gs8.60\bin\gsdll32.dll";
-                        
+            //gsDllPath = @"C:\Program Files\gs\gs8.56\bin\";
+
             if (!string.IsNullOrEmpty(gsDllPath))
             {
                 // use SetDllDirectory to put it in the DLLImport search path
 
-                Win32.SetDllDirectory(Path.GetDirectoryName(gsDllPath));
+                if (Win32.SetDllDirectory(Path.GetDirectoryName(gsDllPath)))
+                {
+                    Trace.WriteLine("gsdll path loaded at " + gsDllPath);
+                }
+                else
+                {
+                    int win32err = Marshal.GetLastWin32Error();
+                    Trace.WriteLine("SetDllDirectory failed. gsdll path located at " + gsDllPath);
+                    throw new Win32Exception(win32err, "SetDllDirectory failed");
+
+                }
             }
+            else
+            {
+                Trace.WriteLine("gsdll path could not be found in the registry.");
+            }
+
         }
 
         #endregion
@@ -114,10 +131,12 @@ namespace Gouda.Api
                 string[] gsSubKeyNames = gsKey.GetSubKeyNames();
 
                 // grab the most recent install 
+                
                 // (since we're looping through the subkey names.. Those names are the version numbers
                 // however, they don't come back sorted if you have multiple installed versions.. 
                 // they come back in the order you installed them. (i think)... So, in theory, 
-                // the last assignment to gsDLLPath will be the most reently installed version. 
+                // the last assignment to gsDLLPath will be the most recently installed version. 
+
                 foreach (string subkeyName in gsSubKeyNames)
                 {
                     RegistryKey versionSubKey = gsKey.OpenSubKey(subkeyName);
@@ -249,7 +268,7 @@ namespace Gouda.Api
         /// <param name="callback">A DISPLAY_CALLBACK structure containing a number of delegates to various display callback functions</param>
         /// <returns></returns>
         [DllImport("gsdll32.dll", EntryPoint = "gsapi_set_display_callback", CharSet = CharSet.Ansi)]
-        public static extern int SetDisplayCallback(IntPtr instance, ref DISPLAY_CALLBACK displayCallbacks);        
+        public static extern int SetDisplayCallback(IntPtr instance, DISPLAY_CALLBACK displayCallbacks);        
 
         /// <summary>
         /// Initialise the interpreter.
